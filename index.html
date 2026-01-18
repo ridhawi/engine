@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gensis Engine | Universal Neural Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,800;1,800&family=JetBrains+Mono:wght@400;700&display=swap');
+        :root { --bg: #f8fafc; --text: #020617; --accent: #2563eb; --glass: rgba(255, 255, 255, 0.65); --border: rgba(0, 0, 0, 0.08); }
+        body.dark { --bg: #030712; --text: #f8fafc; --accent: #3b82f6; --glass: rgba(15, 23, 42, 0.65); --border: rgba(255, 255, 255, 0.1); }
+        body { border-radius: 0px !important; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); transition: 0.5s; overflow-x: hidden; min-height: 100vh; }
+        .glass-panel, select, button, textarea, .nav-link, .chat-container, .msg-bubble { border-radius: 2.2rem !important; }
+        .rounded-full { border-radius: 9999px !important; }
+        .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; background: radial-gradient(circle at 10% 20%, var(--accent), transparent 30%), radial-gradient(circle at 90% 80%, #a855f7, transparent 30%); opacity: 0.15; filter: blur(120px); }
+        .noise { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; opacity: 0.4; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
+        .glass-panel { background: var(--glass); backdrop-filter: blur(45px) saturate(180%); border: 1px solid var(--border); box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.1); }
+        .page { display: none; animation: slideIn 0.5s forwards; }
+        .page.active { display: block; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .chat-container { height: calc(100vh - 580px); min-height: 420px; }
+        ::-webkit-scrollbar { width: 0px; }
+        .nav-link { cursor: pointer; transition: 0.3s; padding: 0.6rem 1.8rem; font-weight: 800; font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; }
+        .nav-link:hover { background: var(--accent); color: white; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .terminal-bg { background: #000000; color: #00ff00; border-radius: 1rem !important; }
+    </style>
+</head>
+<body class="light p-4 md:px-10">
+    <div class="bg-overlay"></div><div class="noise"></div>
+
+    <nav class="max-w-7xl mx-auto mb-8 sticky top-4 z-50">
+        <div class="glass-panel px-10 py-5 flex flex-wrap justify-between items-center gap-6">
+            <div class="flex items-center gap-4 cursor-pointer" onclick="showPage('home')">
+                <img src="https://i.ibb.co.com/rKwgSpHm/gensis-engine.png" class="w-12 h-12 rounded-full shadow-2xl">
+                <div><h1 class="font-black italic text-2xl tracking-tighter uppercase leading-none" style="font-family: 'Plus Jakarta Sans'">Gen<span class="text-blue-600">sis</span></h1><p class="text-[8px] font-black opacity-40 uppercase tracking-[0.4em] mt-1">Neural Engine</p></div>
+            </div>
+            <div class="hidden lg:flex items-center gap-2">
+                <a onclick="showPage('home')" class="nav-link glass-panel">Engine</a>
+                <a onclick="showPage('featured')" class="nav-link glass-panel">Model</a>
+                <a onclick="showPage('docs')" class="nav-link glass-panel">Docs</a>
+                <a onclick="showPage('about')" class="nav-link glass-panel">About</a>
+            </div>
+            <button id="themeToggle" class="w-12 h-12 glass-panel flex items-center justify-center hover:scale-110 transition-all"><i data-lucide="moon" id="theme-icon" class="w-5 h-5"></i></button>
+        </div>
+    </nav>
+
+    <section id="home" class="page active max-w-6xl mx-auto space-y-8">
+        <div class="glass-panel p-8 flex flex-col lg:flex-row justify-between items-center gap-6">
+            <div class="flex flex-wrap items-center justify-center gap-4 w-full lg:w-auto">
+                <div class="relative w-full md:w-96">
+                    <select id="model-select" class="w-full pl-14 pr-10 py-4 rounded-full text-xs font-bold appearance-none cursor-pointer glass-panel bg-transparent outline-none ring-offset-2 focus:ring-2 ring-blue-500 transition-all">
+                        <optgroup label="NVIDIA (High-End Logic)">
+                            <option value="Llama-3.1-Nemotron-70B-Instruct-HF-q4f16_1-MLC">NVIDIA Nemotron 70B Instruct</option>
+                        </optgroup>
+                        <optgroup label="GPT-Style Tuned Assistants">
+                            <option value="Hermes-2-Pro-Llama-3-8B-q4f16_1-MLC">Hermes 2 Pro Llama 3 8B</option>
+                            <option value="NeuralChat-7b-v3.3-q4f16_1-MLC">NeuralChat 7B v3.3</option>
+                        </optgroup>
+                        <optgroup label="Meta Llama Series (Elite)">
+                            <option value="Llama-3.1-8B-Instruct-q4f32_1-MLC">Llama 3.1 8B Instruct</option>
+                            <option value="Llama-3.1-70B-Instruct-q4f16_1-MLC">Llama 3.1 70B Instruct</option>
+                            <option value="Llama-3-8B-Instruct-q4f32_1-MLC">Llama 3 8B Instruct</option>
+                            <option value="Llama-3-70B-Instruct-q4f16_1-MLC">Llama 3 70B Instruct</option>
+                            <option value="Llama-2-7b-chat-hf-q4f32_1-MLC">Llama 2 7B Chat</option>
+                        </optgroup>
+                        <optgroup label="Google Gemma (Efficient)">
+                            <option value="gemma-2-2b-it-q4f16_1-MLC">Gemma 2 2B IT</option>
+                            <option value="gemma-2-9b-it-q4f16_1-MLC">Gemma 2 9B IT</option>
+                            <option value="gemma-2b-it-q4f16_1-MLC">Gemma 2B IT</option>
+                            <option value="gemma-7b-it-q4f16_1-MLC">Gemma 7B IT</option>
+                        </optgroup>
+                        <optgroup label="Microsoft Phi (Logic & Math)">
+                            <option value="Phi-3-mini-4k-instruct-q4f16_1-MLC">Phi-3 Mini 4k</option>
+                            <option value="Phi-3-medium-4k-instruct-q4f16_1-MLC">Phi-3 Medium</option>
+                            <option value="Phi-3-vision-128k-instruct-q4f16_1-MLC">Phi-3 Vision</option>
+                        </optgroup>
+                        <optgroup label="Open Models (Mistral & Qwen)">
+                            <option value="Mistral-7B-Instruct-v0.3-q4f16_1-MLC">Mistral 7B v0.3</option>
+                            <option value="Mistral-7B-Instruct-v0.2-q4f16_1-MLC">Mistral 7B v0.2</option>
+                            <option value="Qwen2.5-7B-Instruct-q4f16_1-MLC">Qwen 2.5 7B Instruct</option>
+                            <option value="Qwen2.5-1.5B-Instruct-q4f16_1-MLC">Qwen 2.5 1.5B Instruct</option>
+                            <option value="Qwen2-7B-Instruct-q4f16_1-MLC">Qwen 2 7B Instruct</option>
+                            <option value="Mixtral-8x7B-Instruct-v0.1-q4f16_1-MLC">Mixtral 8x7B Instruct</option>
+                        </optgroup>
+                        <optgroup label="Lightweight Models">
+                            <option value="TinyLlama-1.1B-Chat-v1.0-q4f32_1-MLC">TinyLlama 1.1B Chat</option>
+                        </optgroup>
+                    </select>
+                    <i data-lucide="brain-circuit" class="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-600"></i>
+                </div>
+                <button id="load-btn" class="bg-blue-600 hover:bg-blue-700 px-10 py-4 font-black text-xs uppercase tracking-widest text-white shadow-xl flex items-center gap-3 transition-all rounded-full"><i data-lucide="zap" class="w-4 h-4"></i> Establish Link</button>
+            </div>
+        </div>
+        <div id="status-container" class="hidden glass-panel p-10"><div class="flex justify-between items-center mb-6"><span id="status-text" class="text-xs font-black opacity-40 uppercase tracking-[0.2em]">Pending...</span><span id="progress-pct" class="font-black italic text-4xl text-blue-600">0%</span></div><div class="h-3 w-full bg-black/5 rounded-full overflow-hidden p-0.5"><div id="progress-bar" class="h-full bg-blue-600 shadow-[0_0_20px_rgba(37,99,235,0.6)] transition-all duration-300 rounded-full" style="width: 0%"></div></div></div>
+        <div class="glass-panel p-3"><div id="chat-box" class="chat-container overflow-y-auto p-10 space-y-10"><div class="flex justify-start"><div class="glass-panel bg-blue-500/5 p-8 max-w-[85%] border-blue-500/10"><p class="text-sm italic font-medium opacity-80 leading-relaxed">Select one of the 22 models in the Inventory database to start local inference.</p></div></div></div><div class="p-8 pt-0"><div class="relative glass-panel bg-black/5 p-3 flex items-center gap-4"><textarea id="user-input" rows="1" class="flex-1 bg-transparent px-6 py-4 text-sm outline-none resize-none font-medium" placeholder="Write something..."></textarea><button id="send-btn" class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center opacity-30 cursor-not-allowed transition-all" disabled><i data-lucide="send" class="w-6 h-6 text-white"></i></button></div></div></div>
+    </section>
+
+    <section id="featured" class="page max-w-7xl mx-auto py-10 space-y-12">
+        <h2 class="font-black text-5xl italic uppercase tracking-tighter text-center" style="font-family: 'Plus Jakarta Sans'">Complete Neural <span class="text-blue-600">Model (22 Units)</span></h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="glass-panel p-10 border-l-[16px] border-green-500">
+                <h3 class="font-black text-xl uppercase italic mb-4">NVIDIA Series</h3>
+                <p class="text-xs opacity-70 leading-relaxed text-justify"><b>1. NVIDIA Nemotron 70B:</b> The most advanced logic model for industrial science and mathematics. Designed for maximum efficiency on WebGPU.</p>
+            </div>
+            <div class="glass-panel p-10 border-l-[16px] border-purple-600">
+                <h3 class="font-black text-xl uppercase italic mb-4">GPT-Tuned Units</h3>
+                <p class="text-xs opacity-70 leading-relaxed text-justify"><b>2. Hermes 2 Pro 8B:</b> Versatile smart assistant. <br><b>3. NeuralChat 7B:</b> The communicative model is very sharp.</p>
+            </div>
+            <div class="glass-panel p-10 border-l-[16px] border-blue-600">
+                <h3 class="font-black text-xl uppercase italic mb-4">Meta Llama Series</h3>
+                <p class="text-xs opacity-70 leading-relaxed text-justify"><b>4. Llama 3.1 8B</b> <br><b>5. Llama 3.1 70B</b> <br><b>6. Llama 3 8B</b> <br><b>7. Llama 3 70B</b> <br><b>8. Llama 2 7B:</b> The most stable model series for general tasks, coding, and private data processing.</p>
+            </div>
+            <div class="glass-panel p-10 border-l-[16px] border-emerald-600">
+                <h3 class="font-black text-xl uppercase italic mb-4">Google Gemma</h3>
+                <p class="text-xs opacity-70 leading-relaxed text-justify"><b>9. Gemma 2 2B</b> <br><b>10. Gemma 2 9B</b> <br><b>11. Gemma 2B IT</b> <br><b>12. Gemma 7B IT:</b> Excellence in safety and understanding of creative language with a very well-maintained nuance.</p>
+            </div>
+            <div class="glass-panel p-10 border-l-[16px] border-orange-600">
+                <h3 class="font-black text-xl uppercase italic mb-4">Microsoft Phi</h3>
+                <p class="text-xs opacity-70 leading-relaxed text-justify"><b>13. Phi-3 Mini 4k</b> <br><b>14. Phi-3 Medium</b> <br><b>15. Phi-3 Vision:</b> A masterpiece of efficiency. Varian Vision even supports multimodal input for local image analysis.</p>
+            </div>
+            <div class="glass-panel p-10 border-l-[16px] border-pink-600">
+                <h3 class="font-black text-xl uppercase italic mb-4">Mistral & Qwen</h3>
+                <p class="text-xs opacity-70 leading-relaxed text-justify"><b>16. Mistral 7B v0.3</b> <br><b>17. Mistral 7B v0.2</b> <br><b>18. Qwen 2.5 7B</b> <br><b>19. Qwen 2.5 1.5B</b> <br><b>20. Qwen 2 7B</b> <br><b>21. Mixtral 8x7B:</b> The king of efficiency from the open source community for multilingualism.</p>
+            </div>
+            <div class="glass-panel p-10 border-l-[16px] border-slate-500">
+                <h3 class="font-black text-xl uppercase italic mb-4">Others</h3>
+                <p class="text-xs opacity-70 leading-relaxed"><b>22. TinyLlama 1.1B:</b> The lightest model for systems with RAM under 8GB.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="docs" class="page max-w-4xl mx-auto py-10">
+        <div class="glass-panel p-14 space-y-8">
+            <h2 class="font-black text-4xl italic uppercase tracking-tighter text-center">User Guide</h2>
+            <div class="space-y-6 text-sm opacity-75 leading-relaxed text-justify">
+                <p><b>WebGPU:</b> Must use the latest Chrome/Edge. <br><b>RAM:</b> 8B needs 16GB, 70B needs 48GB+. <br><b>Offline:</b> Download once, use forever without internet.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="research" class="page max-w-4xl mx-auto py-10">
+        <div class="glass-panel p-14 space-y-6">
+            <h2 class="font-black text-4xl italic uppercase tracking-tighter text-center">Neural Research</h2>
+            <p class="opacity-70 leading-relaxed text-justify">We investigated the limitations of WebAssembly and WebGPU for local AI inference. Our primary focus was delivering 70B models to the browser without lag, ensuring user data never touches the internet.</p>
+        </div>
+    </section>
+
+    <section id="protocol" class="page max-w-4xl mx-auto py-10">
+        <div class="glass-panel p-14 space-y-6">
+            <h2 class="font-black text-4xl italic uppercase tracking-tighter text-center">Security Protocol</h2>
+            <div class="glass-panel p-8 bg-blue-600/5 border-l-8 border-blue-600">
+                <h4 class="font-bold mb-2">P-01: Local Priority</h4>
+                <p class="text-xs opacity-70">All computations must occur on the user's device. Data entering the terminal is ephemeral (temporary).</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="terminal" class="page max-w-5xl mx-auto py-10">
+        <div class="terminal-bg p-10 mono text-[11px] min-h-[500px] shadow-2xl overflow-y-auto" id="term-box">
+            <p>>>> GENSIS_ENGINE TERMINAL READY...</p>
+            <p>>>> WEBGPU DETECTED: [OK]</p>
+            <div id="terminal-content"></div>
+            <p class="animate-pulse">_</p>
+        </div>
+    </section>
+
+    <section id="about" class="page max-w-4xl mx-auto py-10 text-center">
+        <div class="glass-panel p-20 space-y-6"><h2 class="font-black text-6xl uppercase italic">Gensis <span class="text-blue-600">Neural Engine</span></h2><p class="opacity-50 italic">Privacy is a right, not a feature.</p></div>
+    </section>
+
+    <footer class="max-w-7xl mx-auto mt-24 mb-10"><div class="glass-panel p-12 flex flex-col md:flex-row justify-between items-center gap-8 text-[9px] font-black uppercase tracking-[0.5em] opacity-30">
+        <p>© 2026 Genesis Neural Engine</p>
+        <div class="flex flex-wrap justify-center gap-8">
+            <a onclick="showPage('research')" class="hover:text-blue-500 cursor-pointer">Research</a>
+            <a onclick="showPage('protocol')" class="hover:text-blue-600 cursor-pointer">Protocol</a>
+            <a onclick="showPage('terminal')" class="hover:text-blue-600 cursor-pointer">Terminal</a>
+        </div>
+        <p>WebGPU Engine</p>
+    </div></footer>
+
+    <script type="module">
+        import * as webllm from "https://esm.run/@mlc-ai/web-llm";
+        lucide.createIcons();
+
+        window.showPage = (id) => {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if(id === 'terminal') addLog("SYSTEM", "User accessing kernel log...");
+        };
+
+        function addLog(type, msg) {
+            const cont = document.getElementById('terminal-content');
+            if(cont) { const p = document.createElement('p'); p.innerText = `>>> [${type}] ${msg}`; cont.appendChild(p); }
+        }
+
+        const themeBtn = document.getElementById('themeToggle');
+        themeBtn.onclick = () => { document.body.classList.toggle('dark'); lucide.createIcons(); };
+
+        const loadBtn = document.getElementById('load-btn');
+        const chatBox = document.getElementById('chat-box');
+        const sendBtn = document.getElementById('send-btn');
+        const userInput = document.getElementById('user-input');
+        let engine;
+
+        loadBtn.onclick = async () => {
+            document.getElementById('status-container').classList.remove('hidden');
+            loadBtn.disabled = true;
+            addLog("INIT", "Starting Neural Engine...");
+            engine = new webllm.MLCEngine();
+            engine.setInitProgressCallback((r) => {
+                const pct = Math.round(r.progress * 100);
+                document.getElementById('progress-bar').style.width = pct + "%";
+                document.getElementById('progress-pct').innerText = pct + "%";
+                document.getElementById('status-text').innerText = r.text.toUpperCase();
+                addLog("DOWNLOAD", r.text);
+            });
+            await engine.reload(document.getElementById('model-select').value);
+            sendBtn.disabled = false; sendBtn.classList.remove('opacity-30');
+            addLog("SUCCESS", "Neural Link Established.");
+        };
+
+        async function sendMessage() {
+            const text = userInput.value.trim(); if (!text || !engine) return;
+            appendMessage('user', text); addLog("PROMPT", text); userInput.value = "";
+            const aiMsg = appendMessage('ai', "Thinking...");
+            let r = "";
+            const chunks = await engine.chat.completions.create({ messages: [{ role: "user", content: text }], stream: true });
+            for await (const c of chunks) { r += c.choices[0]?.delta?.content || ""; aiMsg.querySelector('p').innerText = r; chatBox.scrollTop = chatBox.scrollHeight; }
+            addLog("RESULT", "Inference Complete.");
+        }
+
+        function appendMessage(role, text) {
+            const div = document.createElement('div');
+            div.className = `flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+            div.innerHTML = `<div class="glass-panel p-8 max-w-[85%] ${role === 'user' ? 'bg-blue-600 text-white border-none' : 'bg-white/5'} shadow-xl"><p class="text-sm font-medium leading-relaxed">${text}</p></div>`;
+            chatBox.appendChild(div); chatBox.scrollTop = chatBox.scrollHeight; return div;
+        }
+
+        sendBtn.onclick = sendMessage;
+        userInput.onkeydown = (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
+    </script>
+</body>
+</html>
